@@ -18,7 +18,7 @@ class ViewController: UIViewController {
     // MARK: - Properties
     var currentGame: Game!
     let incorrectMovesAllowed = 7
-    var listOfWords = [
+    var globalListOfWords = [
         "Барсук",
         "Бабочка",
         "Белка",
@@ -46,18 +46,12 @@ class ViewController: UIViewController {
         "Соболь",
         "Стрекоза",
         "Тигр"
-    ].shuffled()
+    ]
+    var currentListOfWords: [String]!
     
-    var totalWins = 0 {
-        didSet {
-            newRound()
-        }
-    }
-    var totalLosses = 0 {
-        didSet {
-            newRound()
-        }
-    }
+    var totalRounds = 0
+    var totalWins = 0
+    var totalLosses = 0
 
     // MARK: - Methods
     func enableButtons(_ enable: Bool = true) {
@@ -66,15 +60,24 @@ class ViewController: UIViewController {
         }
     }
     
+    func newGame() {
+        currentListOfWords = globalListOfWords.shuffled()
+        totalRounds = 0
+        totalWins = 0
+        totalLosses = 0
+        newRound()
+    }
+    
     func newRound() {
-        guard !listOfWords.isEmpty else {
+        guard !currentListOfWords.isEmpty else {
             enableButtons(false)
             updateUI()
             return
         }
         
-        let newWord = listOfWords.removeFirst()
+        let newWord = currentListOfWords.removeFirst()
         currentGame = Game(word: newWord, incorrectMovesRemaining: incorrectMovesAllowed)
+        totalRounds += 1
         updateUI()
         enableButtons()
     }
@@ -90,8 +93,10 @@ class ViewController: UIViewController {
     func updateState() {
         if currentGame.incorrectMovesRemaining < 1 {
             totalLosses += 1
-        } else if currentGame.guessedWord == currentGame.word {
+            newRound()
+        } else if currentGame.guessedWord == currentGame.currentWord {
             totalWins += 1
+            newRound()
         } else {
             updateUI()
         }
@@ -102,12 +107,12 @@ class ViewController: UIViewController {
         let image = "Tree\(movesRemaining)"
         treeImageView.image = UIImage(named: image)
         updateCorrectWordLabel()
-        scoreLabel.text = "Выигрыши: \(totalWins), проигрыши: \(totalLosses)"
+        scoreLabel.text = "Выигрыши: \(totalWins), проигрыши: \(totalLosses), Раунд: \(totalRounds)(\(currentListOfWords.count))"
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        newRound()
+        newGame()
     }
     
     //MARK: - IB Actions
@@ -118,5 +123,23 @@ class ViewController: UIViewController {
         updateState()
     }
     
+    @IBAction func newGameButtonPressed(_ sender: UIButton) {
+        newGame()
+    }
+    
+    @IBAction func showWordButtonPressed(_ sender: UIButton) {
+        totalLosses += 1
+        
+        for letter in currentGame.currentWord {
+            currentGame.playerGuessed(letter: letter)
+        }
+        
+        enableButtons(false)
+        updateUI()
+    }
+    
+    @IBAction func nextWordButtonPressed(_ sender: UIButton) {
+        newRound()
+    }
 }
 

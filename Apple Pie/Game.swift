@@ -6,19 +6,19 @@
 //
 
 struct Game {
-    var word: String
+    var currentWord: String
     var incorrectMovesRemaining: Int
     private var guessedLetters = [Character]()
     
     init(word: String, incorrectMovesRemaining: Int) {
-        self.word = word
+        self.currentWord = word
         self.incorrectMovesRemaining = incorrectMovesRemaining
     }
     
     var guessedWord: String {
         var wordToShow = String()
         
-        for letter in word {
+        for letter in currentWord {
             if guessedLetters.contains(Character(letter.lowercased())) || letter == "-" || letter == " " {
                 wordToShow += String(letter)
             } else {
@@ -32,7 +32,7 @@ struct Game {
     mutating func playerGuessed(letter: Character) {
         let lowercasedLetter = Character(letter.lowercased())
         guessedLetters.append(lowercasedLetter)
-        if !word.lowercased().contains(lowercasedLetter) {
+        if !currentWord.lowercased().contains(lowercasedLetter) {
             incorrectMovesRemaining = incorrectMovesRemaining <= 0 ? 0 : incorrectMovesRemaining - 1
         }
     }
