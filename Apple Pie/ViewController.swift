@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet var letterButtons: [UIButton]!
     @IBOutlet weak var correctWordLabel: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
+    @IBOutlet weak var showWordButton: UIButton!
     
     // MARK: - Properties
     var currentGame: Game!
@@ -58,6 +59,7 @@ class ViewController: UIViewController {
         for button in letterButtons {
             button.isEnabled = enable
         }
+        showWordButton.isEnabled = enable
     }
     
     func newGame() {
@@ -93,13 +95,13 @@ class ViewController: UIViewController {
     func updateState() {
         if currentGame.incorrectMovesRemaining < 1 {
             totalLosses += 1
-            newRound()
+            enableButtons(false)
         } else if currentGame.guessedWord == currentGame.currentWord {
             totalWins += 1
-            newRound()
-        } else {
-            updateUI()
+            enableButtons(false)
         }
+        
+        updateUI()
     }
     
     func updateUI() {
@@ -128,14 +130,13 @@ class ViewController: UIViewController {
     }
     
     @IBAction func showWordButtonPressed(_ sender: UIButton) {
-        totalLosses += 1
+        currentGame.incorrectMovesRemaining = 0
         
         for letter in currentGame.currentWord {
             currentGame.playerGuessed(letter: letter)
         }
         
-        enableButtons(false)
-        updateUI()
+        updateState()
     }
     
     @IBAction func nextWordButtonPressed(_ sender: UIButton) {
